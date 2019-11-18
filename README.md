@@ -1,20 +1,22 @@
-# Color Select
+# Color Chooser
 
-A React component for selecting colors.  
+A `React` component for choosing colors.  
 
-Provides a widget for selecting a color, allows for editing and viewing of:
+Provides a widget for choosing a color, allows for editing and viewing of:
 - HEX
 - RGB
 - HSV
 - HSL
-- Alpha (pass property alpha to enable alpha channel)
+- Alpha (pass property alpha to enable alpha channel)  
 
-Does not include funtionality to open or close the widget, this integration must be done manually.
+Does not include funtionality to open or close the widget, this integration must be done manually.  
+
+Only depends on `React`.
 
 ## Screenshots
 ![screenshot1](https://raw.githubusercontent.com/obsius/color-chooser/master/doc/example.png "Example")
 
-### Example
+## Example
 
 ```js
 import React from 'react';
