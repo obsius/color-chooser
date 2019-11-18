@@ -47,37 +47,37 @@ import './my-color-chooser-style-override.css';
 
 class App extends React.Component {
 
-	constructor(props) {
-		super(props);
+    constructor(props) {
+        super(props);
 		
-		this.state = {
-			color: '#00FF00'
-		};
-	}
+        this.state = {
+            color: '#00FF00'
+        };
+    }
 
-	handleColorChange = (color) => {
-		this.setState({
-			...this.state,
-			color: color
-		});
-	};
+    handleColorChange = (color) => {
+        this.setState({
+            ...this.state,
+            color: color
+        });
+    };
 
-	render() {
+    render() {
 
-		let overlay = this.state.isOpen && (
-			<div>
-				<ColorChooser color={this.state.color} onChange={this.handleColorChange} />
-			</div>
-		);
+        let overlay = this.state.isOpen && (
+            <div>
+                <ColorChooser color={this.state.color} onChange={this.handleColorChange} />
+            </div>
+        );
 
-		return (
-			<div>
-				<div>
-					{ overlay }
-				</div>
-			</div>
-		);
-	}
+        return (
+            <div>
+                <div>
+                     { overlay }
+                </div>
+            </div>
+        );
+    }
 }
 ```
 
