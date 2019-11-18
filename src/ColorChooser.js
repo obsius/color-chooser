@@ -1,4 +1,6 @@
 import React from 'react';
+
+import Color from './Color';
 import Readout from './Readout';
 
 const MODES = ['hex', 'rgb', 'hsl', 'hsv'];
@@ -10,6 +12,7 @@ export default class ColorChooser extends React.Component {
 
 		this.canvasRef = React.createRef();
 		this.spectrumRef = React.createRef();
+		this.alphaRef = React.createRef();
 
 		this.color = props.color ? Color.fromHex(props.color) : new Color();
 
@@ -17,9 +20,11 @@ export default class ColorChooser extends React.Component {
 			mode: MODES[0],
 			draggingCanvas: false,
 			draggingSpectrum: false,
+			draggingAlpha: false,
 			canvasX: this.color.sv.s,
 			canvasY: this.color.sv.v,
-			spectrumX: this.color.h
+			spectrumX: this.color.h,
+			alphaX: this.color.a
 		};
 
 		window.addEventListener('mousemove', this.handleMouseMove);
@@ -40,15 +45,26 @@ export default class ColorChooser extends React.Component {
 		if (!color || !this.color.equals(color)) {
 
 			if (color) {
-				this.color = color;
+				if (typeof color == 'string') {
+					this.color.setHex(color);
+				} else {
+					this.color =  color;
+				}
 			}
 
 			this.setState({
 				...this.state,
-				canvasX: this.color.s,
-				canvasY: this.color.l,
-				spectrumX: this.color.h
+				canvasX: this.color.sv.s,
+				canvasY: this.color.sv.v,
+				spectrumX: this.color.h,
+				alphaX: this.color.a
 			});
+		}
+	}
+
+	emitChange() {
+		if (typeof this.props.onChange == 'function') {
+			this.props.onChange(this.color);
 		}
 	}
 
@@ -60,6 +76,8 @@ export default class ColorChooser extends React.Component {
 		let y = bound((bounds.bottom - pageY) / bounds.height);
 
 		this.color.setHsv(this.color.h, x, y);
+
+		this.emitChange();
 
 		return {
 			canvasX: x,
@@ -75,8 +93,25 @@ export default class ColorChooser extends React.Component {
 
 		this.color.setHue(x);
 
+		this.emitChange();
+
 		return {
 			spectrumX: x
+		};
+	}
+
+	setAlpha(pageX) {
+
+		let bounds = this.alphaBounds;
+
+		let x = bound((pageX - bounds.left) / (bounds.right - bounds.left));
+
+		this.color.setAlpha(x);
+
+		this.emitChange();
+
+		return {
+			alphaX: x
 		};
 	}
 
@@ -95,8 +130,15 @@ export default class ColorChooser extends React.Component {
 				...this.state,
 				...this.setSpectrum(e.pageX)
 			});
+
+		// alpha
+		} else if (this.state.draggingAlpha) {
+			this.setState({
+				...this.state,
+				...this.setAlpha(e.pageX)
+			});
 		}
-	}
+	};
 
 	handleMouseUp = (e) => {
 
@@ -115,8 +157,16 @@ export default class ColorChooser extends React.Component {
 				...this.setSpectrum(e.pageX),
 				draggingSpectrum: false
 			});
+
+		// alpha
+		} else if (this.state.draggingAlpha) {
+			this.setState({
+				...this.state,
+				...this.setAlpha(e.pageX),
+				draggingAlpha: false
+			});
 		}
-	}
+	};
 
 	handleCanvasMouseDown = (e) => {
 
@@ -140,28 +190,16 @@ export default class ColorChooser extends React.Component {
 		});
 	};
 
-	handleChange = (...args) => {
+	handleAlphaMouseDown = (e) => {
 
-		switch (this.state.mode) {
-			case 'hex':
-				this.color.setHex(args[0]);
-				break;
+		this.alphaBounds = getBounds(this.alphaRef.current);
 
-			case 'rgb':
-				this.color.setRgb(...args);
-				break;
-
-			case 'hsl':
-				this.color.setHsl(...args);
-				break;
-
-			case 'hsv':
-				this.color.setHsv(...args);
-				break;
-		}
-
-		this.update();
-	}
+		this.setState({
+			...this.state,
+			...this.setAlpha(e.pageX),
+			draggingAlpha: true
+		});
+	};
 	
 	handleToggle = () => {
 
@@ -174,19 +212,65 @@ export default class ColorChooser extends React.Component {
 		});
 	};
 
+	handleInput = () => {
+		this.emitChange();
+		this.update();
+	};
+
 	render() {
 
 		let { color } = this;
+
+		let { alpha } = this.props;
 
 		let {
 			mode,
 			canvasX,
 			canvasY,
-			spectrumX
+			spectrumX,
+			alphaX
 		} = this.state;
 
 		let hex = color.getHex();
+		let alphaHex = color.getAlphaHex();
 		let hue = color.getHueHex();
+
+		let spectrumSlider = (
+			<div
+				ref={this.spectrumRef}
+				className="color-chooser-spectrum"
+				onMouseDown={this.handleSpectrumMouseDown}
+			>
+				<div
+					className="color-chooser-spectrum-selected"
+					style={{
+						left: `calc(${spectrumX * 100}% - 5px)`,
+						borderColor: color.getInverseOverlayHueHex()
+					}}
+				/>
+			</div>
+		);
+
+		let alphaSlider = alpha && (
+			<div
+				ref={this.alphaRef}
+				className="color-chooser-alpha"
+				onMouseDown={this.handleAlphaMouseDown}
+			>
+				<div
+					className="color-chooser-alpha-mask"
+					style={{
+						backgroundImage: `linear-gradient(to right, ${hex}00, ${hex}ff)`
+					}}
+				/>
+				<div
+					className="color-chooser-alpha-selected"
+					style={{
+						left: `calc(${alphaX * 100}% - 5px)`
+					}}
+				/>
+			</div>
+		);
 
 		return (
 			<div className="color-chooser">
@@ -208,32 +292,31 @@ export default class ColorChooser extends React.Component {
 					/>
 				</div>
 				<div className="color-chooser-controls">
-					<div className="color-chooser-preview" style={{ backgroundColor: hex }} />
-					<div
-						ref={this.spectrumRef}
-						className="color-chooser-spectrum"
-						onMouseDown={this.handleSpectrumMouseDown}
-					>
-						<div
-							className="color-chooser-spectrum-selected"
-							style={{
-								left: `calc(${spectrumX * 100}% - 5px)`,
-								borderColor: color.getInverseOverlayHueHex()
-							}}
-						/>
+					<div className="color-chooser-preview">
+						<div className="color-chooser-preview-mask" style={{ backgroundColor: alphaHex }} />
+					</div>
+					<div className="color-chooser-sliders">
+						{ spectrumSlider }
+						{ alphaSlider }
 					</div>
 				</div>
-				<Readout color={this.color} mode={mode} alpha={this.props.alpha} />
+				<Readout
+					color={this.color}
+					mode={mode}
+					alpha={this.props.alpha}
+					onToggle={this.handleToggle}
+					onChange={this.handleInput}
+				/>
 			</div>
 		);
 	}
 }
 
 ColorChooser.MODES = {
-	hex: 'hex',
-	rgb: 'rgb',
-	hsv: 'hsv',
-	hsl: 'hsl'
+	HEX: 'hex',
+	RGB: 'rgb',
+	HSV: 'hsv',
+	HSL: 'hsl'
 };
 
 /* internal */

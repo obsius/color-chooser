@@ -1,0 +1,248 @@
+/* color chooser */
+
+.color-chooser {
+	display: flex;
+	flex-direction: column;
+	width: 340px;
+	padding: 10px;
+	
+	color: #ffffff;
+	background-color: #333333;
+	border: 2px solid #777777;
+	user-select: none;
+}
+
+/* input */
+
+.color-chooser input {
+	width: 100%;
+	text-align: center;
+	background-color: #222222;
+	border: none;
+}
+
+.color-chooser input:active,
+.color-chooser input:focus {
+	border: none;
+	box-shadow: none;
+	outline-color: transparent;
+}
+
+.color-chooser-input-container {
+	display: flex;
+	justify-content: space-between;
+	flex: 1 1;
+	border: 2px solid #666666;
+}
+
+.color-chooser-input-prefix,
+.color-chooser-input-suffix {
+	display: flex;
+	align-items: center;
+	height: 100%;
+	padding: 0 2px 0 2px;
+	background-color: #666666;
+	flex: 0 1;
+}
+
+.color-chooser-input-invalid {
+	border-color: #FF0000;
+}
+
+/* button */
+
+.color-chooser button,
+.color-chooser button:active,
+.color-chooser button:focus {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	font-size: 24px;
+	font-weight: 600;
+	padding: 0;
+
+	background-color: #444444;	
+	border: 2px solid #777777;
+	box-shadow: none;
+	outline-color: transparent;
+	cursor: pointer;
+}
+
+.color-chooser button:hover {
+	background-color: #555555;
+	border: 2px solid #888888;
+}
+
+/* canvas */
+
+.color-chooser-canvas {
+	position: relative;
+	width: 100%;
+	height: 200px;
+	cursor: pointer;
+}
+
+.color-chooser-canvas-lighten {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left:  0;
+	background: linear-gradient(to right, #ffffff, rgba(255, 255, 255, 0));
+}
+
+.color-chooser-canvas-darken {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left:  0;
+	background: linear-gradient(to top, #000000, rgba(0, 0, 0, 0));
+}
+
+.color-chooser-canvas-selected {
+	position: absolute;
+	width: 20px;
+	height: 20px;
+	border-width: 2px;
+	border-style: solid;
+	border-radius: 10px;
+}
+
+/* controls */
+
+.color-chooser-controls {
+	display: flex;
+	align-items: center;
+	margin: 20px 10px 20px 10px;
+}
+
+.color-chooser-controls > div:not(:last-child) {
+	margin-right: 20px;
+}
+
+/* preview */
+
+.color-chooser-preview,
+.color-chooser-alpha {
+	background-image:
+		linear-gradient(to right, rgba(192, 192, 192, 0.75), rgba(192, 192, 192, 0.75)),
+		linear-gradient(to right, black 50%, white 50%),
+		linear-gradient(to bottom, black 50%, white 50%);
+	background-blend-mode: normal, difference, normal;
+	background-size: 16px 16px;
+}
+
+.color-chooser-preview {
+	height: 32px;
+	width: 32px;
+	border: 2px solid #cccccc;
+	box-sizing: content-box;
+}
+
+.color-chooser-preview-mask {
+	width: 100%;
+	height: 100%;
+}
+
+/* sliders */
+
+.color-chooser-sliders {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	flex: 1 1;
+}
+
+.color-chooser-sliders > div:not(:last-child) {
+	margin-bottom: 10px;
+}
+
+.color-chooser-spectrum,
+.color-chooser-alpha {
+	position: relative;
+	height: 16px;
+	cursor: pointer;
+}
+
+/* spectrum */
+
+.color-chooser-spectrum {
+	background: linear-gradient(
+		to right,
+		#f00 0%,
+		#ff0 17%,
+		#0f0 33%,
+		#0ff 50%,
+		#00f 67%,
+		#f0f 83%,
+		#f00 100%
+	);
+}
+
+.color-chooser-spectrum-selected {
+	position: absolute;
+	top: -2px;
+	height: calc(100% + 4px);
+	width: 12px;
+	border-width: 2px;
+	border-style: solid;
+}
+
+/* alpha */
+
+.color-chooser-alpha-mask {
+	width: 100%;
+	height: 100%;
+}
+
+.color-chooser-alpha-selected {
+	position: absolute;
+	top: -2px;
+	height: calc(100% + 4px);
+	width: 12px;
+	border-width: 2px;
+	border-style: solid;
+}
+
+/* readout */
+
+.color-chooser-readout {
+	display: flex;
+	align-items: center;
+	width: 100%;
+	overflow: hidden;
+	padding-top: 20px;
+	border-top: 1px solid #777777;
+}
+
+.color-chooser-readout > div {
+	flex: 1 1;
+}
+
+.color-chooser-readout > div:not(:last-child) {
+	margin-right: 20px;
+}
+
+/* values */
+
+.color-chooser-values {
+	display: flex;
+	width: 100%;
+	height: 40px;
+}
+
+.color-chooser-values > *:not(:last-child) {
+	margin-right: 10px;
+}
+
+.color-chooser-values-mode {
+	display: flex;
+	min-width: 30px;
+	align-items: center;
+	color: #cccccc;
+	height: 100%;
+	font-weight: 600;
+}

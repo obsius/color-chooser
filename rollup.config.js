@@ -3,7 +3,7 @@ import babel from 'rollup-plugin-babel';
 export default {
 	input: 'src/ColorChooser.js',
 	output: {
-		file: 'lib/ColorChooser.js',
+		file: 'lib/index.js',
 		format: 'cjs'
 	},
 	plugins: [

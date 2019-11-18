@@ -7,7 +7,7 @@ const C = 4 * S;
 const B = 5 * S;
 const M = 6 * S;
 
-class Color {
+export default class Color {
 
 	a = 1;
 
@@ -41,6 +41,10 @@ class Color {
 	/* getters */
 
 	getHex() {
+		return rgbaToHex(this.rgb.r, this.rgb.g, this.rgb.b);
+	}
+
+	getAlphaHex() {
 		return rgbaToHex(this.rgb.r, this.rgb.g, this.rgb.b, this.a);
 	}
 
@@ -136,7 +140,18 @@ class Color {
 
 	/* setters */
 
-	setRgba(r, g, b, a = this.a) {
+	setRgba(r, g, b, a) {
+
+		if (r == null) { r = this.rgb.r; }
+		if (g == null) { g = this.rgb.g; }
+		if (b == null) { b = this.rgb.b; }
+		if (a == null) { a = this.a; }
+
+		// validate
+		r = validatePercent(r);
+		g = validatePercent(g);
+		b = validatePercent(b);
+		a = validatePercent(a);
 
 		this.a = a;
 
@@ -147,30 +162,37 @@ class Color {
 		let h;
 		let s;
 
-		// achromatic
-		if (max) {
+		// chormatic
+		if (max && d) {
+
 			s = d / max;
 
-		// chormatic
+			// red
+			if (r == max) {
+				h = (g - b) / d;
+
+			// green
+			} else if (g == max) {
+				h = 2 + ((b - r) / d);
+
+			// blue
+			} else {
+				h = 4 + ((r - g) / d);
+			}
+
+			h /= 6;
+
+			if (h < 0) {
+				h += 1;
+			}
+
+		// achromatic
 		} else {
 			s = 0;
 		}
 
-		// red
-		if (r == max) {
-			h = (g - b) / d;
-
-		// green
-		} else if (g == max) {
-			h = 2 + ((b - r) / d);
-
-		// blue
-		} else {
-			h = 4 + ((r - g) / d);
-		}
-
 		// hsv
-		this.h = (h != null) ? (h / 6) : this.h;
+		this.h = (h != null) ? h : this.h;
 		this.sv.s = s;
 		this.sv.v = max;
 
@@ -204,15 +226,31 @@ class Color {
 
 	setHsl(h, s, l) {
 
-		let t = s * ((s < .5) ? l : (1 - l));
+		if (h == null) { h = this.h; }
+		if (s == null) { s = this.sl.s; }
+		if (l == null) { l = this.sl.l; }
+
+		h = validatePercent(h);
+		s = validatePercent(s);
+		l = validatePercent(l);
+
+		let t = s * ((l < .5) ? l : (1 - l));
 
 		let v = l + t;
-		let s2 = l > 0 ? (2 * (t / this.b)) : s;
+		let s2 = l > 0 ? ((2 * t) / v) : s;
 
 		this.setHsv(h, s2, v);
 	}
 
 	setHsv(h, s, v) {
+
+		if (h == null) { h = this.h; }
+		if (s == null) { s = this.sv.s; }
+		if (v == null) { v = this.sv.v; }
+
+		h = validatePercent(h);
+		s = validatePercent(s);
+		v = validatePercent(v);
 
 		this.h = h;
 		this.sv.s = s;
@@ -222,17 +260,38 @@ class Color {
 	}
 
 	setAlpha(a) {
+		a = validatePercent(a);
 		this.a = a;
 	}
 
 	setHue(hue) {
+		hue = validatePercent(hue);
 		this.setHsv(hue, this.sv.s, this.sv.v);
 	}
 
 	/* methods */
 
 	equals(color) {
-		return this.rgb.r == color.rgb.r && this.rgb.g == color.rgb.g && this.rgb.b == color.rgb.b && this.a == color.a;
+
+		// string
+		if (typeof color == 'string') {
+
+			let thisColor = this.getHex().toLowerCase();
+
+			if (color[0] == '#') {
+				return thisColor == color;
+			} else {
+				return thisColor.substring(1) == color;
+			}
+
+		// color
+		} else if (color instanceof Color) {
+			return this.rgb.r == color.rgb.r && this.rgb.g == color.rgb.g && this.rgb.b == color.rgb.b && this.a == color.a;
+
+		// invalid comparison
+		} else {
+			return false;
+		}
 	}
 
 	update() {
@@ -253,32 +312,43 @@ class Color {
 		// chromatic 
 		} else {
 
-			let i = Math.floor(h * 6);
-			let f = (h * 6) - i;
+			let i = Math.floor(h * 6) % 6;
+			let f = ((h * 6) % 6) - i;
 			let p = v * (1 - s);
 			let q = v * (1 - s * f);
 			let t = v * (1 - s * (1 - f));
 
-			if (h < R) {
+			// red
+			if (i == 0) {
 				r = v;
 				g = t;
 				b = p;
-			} else if (h < Y) {
+
+			// yellow
+			} else if (i == 1) {
 				r = q;
 				g = v;
 				b = p;
-			} else if (h < G) {
+
+			// green
+			} else if (i == 2) {
 				r = p;
 				g = v;
 				b = t;
-			} else if (h < C) {
+
+			// cyan
+			} else if (i == 3) {
 				r = p;
 				g = q;
 				b = v;
-			} else if (h < B) {
+
+			// blue
+			} else if (i == 4) {
 				r = t;
 				g = p;
 				b = v;
+
+			// magenta
 			} else {
 				r = v;
 				g = p;
@@ -291,15 +361,15 @@ class Color {
 		this.rgb.g = g;
 		this.rgb.b = b;
 
-		let l = ((2 - s) * b) / 2;
+		let l = ((2 - s) * v) / 2;
 
 		if (l > 0) {
 			if (l == 1) {
 				s = 0;
 			} else if (l < .5) {
-				s = (s * b) / (l * 2);
+				s = (s * v) / (l * 2);
 			} else {
-				s = (s * b) / (2 - l * 2);
+				s = (s * v) / (2 - l * 2);
 			}
 		}
 
@@ -332,14 +402,14 @@ function toHex(color) {
 	return hex.length == 1 ? `0${hex}` : hex;
 }
 
-function rgbaToHex(r, g, b, a = 1) {
-	if (a < 1) {
-		return '#' + toHex(r) + toHex(g) + toHex(b) + toHex(a);
-	} else {
-		return '#' + toHex(r) + toHex(g) + toHex(b);
-	}
+function rgbaToHex(r, g, b, a) {
+	return '#' + toHex(r) + toHex(g) + toHex(b) + ((a != null) ? toHex(a) : '');
 }
 
 function inverseOverlayHex(r, g, b) {
 	return ((r * 0.299 + g * 0.587 + b * 0.114) > .729) ? rgbaToHex(0, 0, 0) : rgbaToHex(1, 1, 1);
+}
+
+function validatePercent(pct) {
+	return (pct < 0) ? 0 : (pct > 1) ? 1 : pct;
 }

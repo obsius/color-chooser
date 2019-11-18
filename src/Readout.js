@@ -1,73 +1,70 @@
 import React from 'react';
 import Input from './Input';
 
-export default class Readout extends React.Component {
+export default ({ mode, alpha, color, onToggle, onChange }) => {
 
-	render() {
+	let inputs = [];
 
-		let inputs = [];
+	let handle = (fn) => (val) => {
+		fn(val);
+		onChange();
+	};
 
+	// hex string
+	if (mode == 'hex') {
+		inputs.push(
+			<Input
+				key="hex"
+				value={ (alpha ? color.getAlphaHex() : color.getHex()).substr(1) }
+				type={ alpha ? 'str-rgba' : 'str-rgb' }
+				onChange={ handle((str) => color.setHex(str)) }
+			/>,
+		);
+
+	// number type
+	} else {
 		switch (mode) {
-
-			case 'hex':
-				let hex = alpha ? color.getHexAlpha() : color.getHex();
-				hex = hex.substr(1);
-
-				break;
-
 			case 'rgb':
 				inputs.push(
-					<Input key="rgb-r" value={rgb(color.rgb.r)} onChange={this.handleRgbR} />,
-					<Input key="rgb-g" value={rgb(color.rgb.g)} onChange={this.handleRgbG} />,
-					<Input key="rgb-b" value={rgb(color.rgb.b)} onChange={this.handleRgbB} />,
+					<Input key="rgb-r" value={color.rgb.r} type="hex" onChange={ handle((r) => color.setRgba(r)) } />,
+					<Input key="rgb-g" value={color.rgb.g} type="hex" onChange={ handle((g) => color.setRgba(null, g)) } />,
+					<Input key="rgb-b" value={color.rgb.b} type="hex" onChange={ handle((b) => color.setRgba(null, null, b)) } />,
 				);
 				break;
 
 			case 'hsv':
 				inputs.push(
-					<Input key="hsv-h" value={hue(color.h)} onChange={this.handleHue} />,
-					<Input key="hsv-s" value={pct(color.sv.s)} onChange={this.handleHsvS} />,
-					<Input key="hsv-v" value={pct(color.sv.v)} onChange={this.handleHsvV} />,
+					<Input key="hsv-h" value={color.h} type="deg" onChange={ handle((h) => color.setHsv(h)) } />,
+					<Input key="hsv-s" value={color.sv.s} type="pct" onChange={ handle((s) => color.setHsv(null, s)) } />,
+					<Input key="hsv-v" value={color.sv.v} type="pct" onChange={ handle((v) => color.setHsv(null, null, v)) } />,
 				);
 				break;
 
 			case 'hsl':
 				inputs.push(
-					<Input key="hsv-h" value={hue(color.h)} onChange={this.handleHue} />,
-					<Input key="hsv-s" value={pct(color.sl.s)} onChange={this.handleHsvS} />,
-					<Input key="hsv-v" value={pct(color.sl.v)} onChange={this.handleHsvV} />,
+					<Input key="hsl-h" value={color.h} type="deg" onChange={ handle((h) => color.setHsl(h)) } />,
+					<Input key="hsl-s" value={color.sl.s} type="pct" onChange={ handle((s) => color.setHsl(null, s)) } />,
+					<Input key="hsl-l" value={color.sl.l} type="pct" onChange={ handle((l) => color.setHsl(null, null, l)) } />,
 				);
 		}
 
-		return (
-			<div className="color-chooser-readout">
-				<div className="color-chooser-values">
-					<div className="color-chooser-values-mode">
-						{ mode.toUpperCase() }
-					</div>
-					{ inputs }
-				</div>
-				<Toggle onClick={this.handleToggle} />
-			</div>
-		);
+		// add alpha input
+		if (alpha) {
+			inputs.push(
+				<Input key="alpha" value={color.a} type="pct" onChange={ handle((a) => color.setAlpha(a)) } />
+			);
+		}
 	}
-}
 
-
-/* internal */
-
-const Toggle = ({ onClick }) => (
-	<button onClick={onClick}>↔</button>
-);
-
-function rgb(val) {
-	return Math.round(val * 255);
-}
-
-function hue(val) {
-	return Math.round(val * 360);
-}
-
-function pct(val) {
-	return Math.round(val * 100);
+	return (
+		<div className="color-chooser-readout">
+			<div className="color-chooser-values">
+				<div className="color-chooser-values-mode">
+					{ mode.toUpperCase() }
+				</div>
+				{ inputs }
+			</div>
+			<button onClick={onToggle}>↔</button>
+		</div>
+	);
 }
