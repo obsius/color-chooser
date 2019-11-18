@@ -11,10 +11,30 @@ Provides a widget for choosing a color, allows for editing and viewing of:
 
 Does not include funtionality to open or close the widget, this integration must be done manually.  
 
+All styling in `CSS`, override with your own style to customize.  
+
 Only depends on `React`.
 
 ## Screenshots
 ![screenshot1](https://raw.githubusercontent.com/obsius/color-chooser/master/doc/example.png "Example")
+
+## Usage
+
+```js
+<ColorChooser
+    alpha                  // show the alpha layer
+	color={'#00FF00'}      // css hex color
+	onChange={callbackFn}  // pass a function to handle when the color changes
+/>
+```
+
+### Props
+
+Name | Required | Description
+-|-|-
+`color` | Yes | A hex value for the color to show. `#00FF00` or `#00FF00FF` (alpha)
+`onChange` | No | Callback for when the color is changed. Hex value of color.
+`alpha` | No | Show the alpha layer.
 
 ## Example
 
@@ -38,7 +58,7 @@ class App extends React.Component {
 	handleColorChange = (color) => {
 		this.setState({
 			...this.state,
-			color
+			color: color
 		});
 	};
 

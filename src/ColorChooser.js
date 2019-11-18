@@ -64,7 +64,7 @@ export default class ColorChooser extends React.Component {
 
 	emitChange() {
 		if (typeof this.props.onChange == 'function') {
-			this.props.onChange(this.color);
+			this.props.onChange(this.props.alpha ? this.color.getAlphaHex() : this.color.getHex());
 		}
 	}
 
