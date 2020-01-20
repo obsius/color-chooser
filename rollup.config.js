@@ -1,6 +1,9 @@
 import babel from 'rollup-plugin-babel';
 
 export default {
+	external: [
+		'react'
+	],
 	input: 'src/ColorChooser.js',
 	output: {
 		file: 'lib/index.js',
