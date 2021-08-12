@@ -6,6 +6,7 @@ export default {
 	],
 	input: 'src/ColorChooser.js',
 	output: {
+		exports: 'default',
 		file: 'lib/index.js',
 		format: 'cjs'
 	},
